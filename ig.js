@@ -1,58 +1,25 @@
 const btn = document.querySelector('#user-submit');
 const userInput = document.getElementById('user-input');
-let myForm = document.getElementById('search-user-form');
+const myForm = document.getElementById('search-user-form');
+const igHtml = document.querySelector('.ig-tool');
 
-/*const tryt = () =>{
-    console.log(userInput.value)
-}*/
+function searchUserProfile(){
+    let form_data = new FormData(myForm);
+    const userAgent = ['Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36',
+                    'Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:10.0) Gecko/20100101 Firefox/10.0',
+                    'Mozilla/5.0 (X11; Linux i686; rv:10.0) Gecko/20100101 Firefox/10.0']
+    const randAgent = userAgent[Math.floor(Math.random() * userAgent.length)]
 
-myForm.addEventListener('submit', async function (e){
-    e.preventDefault();
-    let form_data = new FormData(this);
-    let headers = 'Content-Type":"application/x-form-urlencoded';
+    return axios.post('ig.php', form_data, {
+    }).then((response)=>{
+        const html = igHtml.innerHTML = response.data
+        console.log(response)
+    }).catch(error=>{console.log('Error in request')})
 
-    //form_data.append();
-
-    await fetch('ig.php', {
-        method: "POST",
-        body: form_data,
-    }).then(response => {
-        return response;
-    }).then(html => {
-        //let text = document.querySelector('.ig-tool').innerHTML = text;
-        const htmlRes = await html.text();
-        console.log(htmlRes);
-    }).catch(error => console.log(error))
-});
-
-//btn.addEventListener('click', load)
-
-
-/*function load(e){
-    let form_data = new FormData();
-    let xhr = new XMLHttpRequest();
-    e.preventDefault();
-    /*for(let value of form_data.values()){        
-    }
-    form_data.append(userInput.name, userInput.value);
-    console.log(form_data.values());
-    let returnValue = xhr.onreadystatechange = function(){
-        if (xhr.readyState === 4) {
-            // Check the response status.
-            if (xhr.status === 200) {
-                console.log(document.querySelector('.ig-tool').innerHTMl = xhr.responseText);
-                //console.log(document.querySelector('#user-input').value);
-            } else {
-                console.log('doesnt work');
-            }
-        }
-    }
-    xhr.open('POST', 'ig.php');
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlendcoded');
-    xhr.send(form_data.values());
-    return returnValue;
 }
 
-myForm.addEventListener('submit', load);*/
-
-
+myForm.addEventListener('submit', async (e)=>{
+    e.preventDefault()
+    await searchUserProfile()
+    
+});
