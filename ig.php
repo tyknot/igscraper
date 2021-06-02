@@ -10,20 +10,48 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 
 $cachePool = new FilesystemAdapter('Instagram', 0, __DIR__ . '/../cache');
+/*$client = new Client([
+	'proxy' => [
+		'https' => '' #this is a dummy example, change with your proxy
+	]
+]);*/
 // ig login
-$api = new Api($cachePool);
-$username = 'iphonecasehutt';
-$password = 'tyknott20!';
+$api = new Api($cachePool, /*$client*/);
+$username = 'hidden.apple.24';
+$password = 'thinkaboutit20';
 
 $imapLogin = new ImapClient('smtp.gmail.com:465', 'johndsmittyy@gmail.com', 'tyknott20!');
 $api->login($username, $password, $imapLogin);
-// chromazz416 adam22 
+$data = json_decode(file_get_contents("php://input"), true);
 $profile = $api->getProfile($_POST['user']);
 
+/**
+*returns base64 endcoded img due to ig cors policy
+*/
+function encodeImg($url){
+	$imageData = base64_encode(file_get_contents($url));
+	$src = 'data:image/jpg;base64, ' . $imageData;
 
+	return $src;
+	//echo '<img src="'.$src.'">';
+}
+
+/**
+*returns base64 endcoded mp4 due to ig cors policy
+*/
+function encodeMp4($url){
+	$videoData = base64_encode(file_get_contents($url));
+	$src = 'data:video/mp4;base64, ' . $videoData;
+
+	return $src;
+	/*echo '<video width="150" height="240" controls controlsList="nodownload nofullscreen  noremoteplayback">' . 
+		'<source src="' . $src2 . '"></source>
+	</video>';*/
+}
 
 function getProfile($profile, $api){
-
+	
+	//login($username, $password, $imapLogin);
 	try{
 		// get ig profile/media
 		echo '<pre>';
@@ -42,7 +70,7 @@ function getProfile($profile, $api){
 					echo '<p id="profile_media_count">Medias Count     : ' . $profile->getMediaCount().'</p>';
 						//print_r($api->getStories($profile->getId()));
 						//print_r($profile->getMedias());
-
+					sleep(5);
 					// first 12 media
 					foreach($profile->getMedias() as $value) {
 
@@ -58,7 +86,7 @@ function getProfile($profile, $api){
 						$mediaCaption = $mediaDetailed->getcaption();
 						// image/jpg
 						$mediaSrc = $mediaDetailed->getdisplaySrc();
-
+						echo $mediaSrc;
 						$medialikes = $mediaDetailed->getlikes();
 						$mediaType = $mediaDetailed->gettypeName();
 						//echo $mediaType . "\n";
@@ -69,16 +97,17 @@ function getProfile($profile, $api){
 						if($mediaType == "GraphImage"){
 							// media is jpg
 							$image = true;
-							echo '<img id=graphimage src=' . $mediaSrc . '>' . "\n";
+							//echo '<img id=graphimage src=' . $mediaSrc . '>' . "\n";
+							echo '<img id=graphimage src="' . encodeImg($mediaSrc) . '">' . "\n";
 						}elseif($mediaType =="GraphVideo"){
 							// media is mp4
 							$video = true;
 							//echo '<img id=video_media src=' . $mediaSrc . '>' . "\n";
 							echo'<video width="150" height="240" controls controlsList="nodownload nofullscreen  noremoteplayback">' . 
-									'<source src="' . $videoUrl . '"></source>
+									'<source src="' . encodeMp4($videoUrl) . '"></source>
 								</video>' . "\n";
 						}elseif($mediaType =="GraphSidecar"){
-							// media is multiple jpg // up to 10
+							// media is jpg format // up to 10 per media post
 							//$side = true;
 							//print_r($sideCar);
 							//echo $mediaSrc . "\n";
@@ -89,6 +118,7 @@ function getProfile($profile, $api){
 							}
 						}
 					}
+					echo '<button name="btn" name="paginate" type="submit"></button>';
 				echo '</div>';
 			echo '</div>';
 		echo '</pre>';
@@ -100,12 +130,23 @@ function getProfile($profile, $api){
 		}
 	}
 
+	function paginate($profile, $api){
+		// shows more media 
+		do {
+			$profile = $api->getMoreMedias($profile);
+			print_r($profile->getMedias()); // 12 more medias
+
+			// avoid 429 Rate limit from Instagram
+			sleep(1);
+		} while ($profile->hasMoreMedias());
+	}
 
 
 
-if(isset($_POST['user-submit'])){
-	getProfile($profile, $api);
-}	
+
+//echo encodeImg($url);
+echo getProfile($profile, $api);
+
 
 
 	
