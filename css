@@ -1,0 +1,39 @@
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 130px;
+}
+
+#search-user-form{
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#search-user-form > input{
+    margin: 20px;
+}
+
+#search-user-button{
+    height: 20px;
+    width: 79px;
+}
+
+.profile{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.media-container{
+    display: flex;
+    flex-wrap: wrap;
+}
+.media-container > video, img{
+    margin: 20px;
+    flex: 0 21%;
+    height: 100%;
+}
